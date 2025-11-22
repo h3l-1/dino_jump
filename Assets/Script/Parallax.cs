@@ -3,60 +3,39 @@ using UnityEngine;
 [RequireComponent(typeof(MeshRenderer))]
 public class Parallax : MonoBehaviour
 {
-    [Header("Parallax Settings")]
-    [Range(0f, 1f)]
-    public float parallaxSpeed = 0.5f;     // This layer's scroll speed
-    
-    [Header("Speed Settings")]
-    public float baseScrollMultiplier = 0.15f; // Overall background scroll speed
+    // THIS SCRIPT FIXES THE "Ground is faster than objects" BUG.
     
     private MeshRenderer meshRenderer;
-    private float textureOffsetX = 0f;
-    private Material materialInstance;
+    private Material material;
+    
+    // You must measure your Quad width in Unity Units!
+    // If your Quad scale is X = 20, put 20 here.
+    public float textureWidthInWorldUnits = 20f; 
+    
+    private float currentOffset = 0f;
 
-    private void Awake()
+    void Awake()
     {
         meshRenderer = GetComponent<MeshRenderer>();
+        material = meshRenderer.material;
+    }
+
+    void Update()
+    {
+        if (GameManager.Instance.isGameOver) return;
+
+        // THE MATH FIX:
+        // To sync 100% with objects moving at 'gameSpeed', we divide by width.
+        float speed = GameManager.Instance.gameSpeed;
         
-        if (meshRenderer != null)
-        {
-            materialInstance = meshRenderer.material;
-            meshRenderer.material = materialInstance;
-        }
-    }
-
-    private void Update()
-    {
-        if (!meshRenderer || materialInstance == null || GameManager.Instance == null)
-            return;
-
-        float parallaxMultiplier = GameManager.Instance.CurrentParallaxMultiplier;
-        float scrollSpeed = GameManager.Instance.gameSpeed * parallaxSpeed * baseScrollMultiplier * parallaxMultiplier;
+        // Calculate how much of the texture (0 to 1) we pass per second
+        float offsetDelta = (speed / textureWidthInWorldUnits) * Time.deltaTime;
         
-        textureOffsetX += scrollSpeed * Time.deltaTime;
+        currentOffset += offsetDelta;
+        
+        // Keep it between 0 and 1 to avoid floating point errors over long runs
+        if(currentOffset > 1) currentOffset -= 1;
 
-        if (textureOffsetX > 1f)
-        {
-            textureOffsetX -= 1f;
-        }
-
-        materialInstance.mainTextureOffset = new Vector2(textureOffsetX, 0f);
-    }
-
-    public void ResetParallax()
-    {
-        textureOffsetX = 0f;
-        if (materialInstance != null)
-        {
-            materialInstance.mainTextureOffset = Vector2.zero;
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (materialInstance != null && Application.isPlaying)
-        {
-            Destroy(materialInstance);
-        }
+        material.mainTextureOffset = new Vector2(currentOffset, 0);
     }
 }

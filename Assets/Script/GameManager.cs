@@ -6,21 +6,21 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     [Header("Game Speed Settings")]
-    public float gameSpeed = 8f;           // Controls movement speed
-    public float initialSpeed = 8f;        // Starting speed
-    public float maxSpeed = 16f;           // Maximum speed
+    public float gameSpeed = 8f; 	 	// Controls movement speed
+    public float initialSpeed = 8f; 	// Starting speed
+    public float maxSpeed = 16f; 	 	// Maximum speed
     
     [Header("Progression Settings")]
-    public float progressionDuration = 240f;     // Time to reach max speed
-    public float initialSlowdownDuration = 3f;   // Initial speed duration
+    public float progressionDuration = 240f; 	// Time to reach max speed
+    public float initialSlowdownDuration = 3f; 	// Initial speed duration
     
     [Header("Gravity Settings")]
-    public float initialGravity = 22f;     // Starting gravity 
-    public float maxGravity = 38f;         // Maximum gravity 
+    public float initialGravity = 22f; 	// Starting gravity 
+    public float maxGravity = 38f; 	 	// Maximum gravity 
     
     [Header("Parallax Settings")]
-    public float initialParallaxMultiplier = 1f;  // Initial parallax speed
-    public float maxParallaxMultiplier = 1.2f;    // Maximum parallax speed
+    public float initialParallaxMultiplier = 1f; 	// Initial parallax speed
+    public float maxParallaxMultiplier = 1.2f; 	// Maximum parallax speed
     
     [Header("Game State")]
     public bool isGameOver = false;
@@ -52,6 +52,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        // This stops the speed calculation if the game is over/paused
         if (isGameOver || isPaused) return;
 
         float gameDuration = GameDuration;
@@ -103,7 +104,25 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
+        if (isGameOver) 
+        {
+            Debug.Log("GameOver was already called, ignoring.");
+            return;
+        }
+        
+        Debug.Log("=== GAME MANAGER GAME OVER ===");
         isGameOver = true;
-        Time.timeScale = 0f;
+        // This should stop all Update/FixedUpdate movement using Time.deltaTime
+        Time.timeScale = 0f; 
+        
+        // Force stop all movement (This part is correctly destroying obstacles)
+        GameObject[] obstacles = GameObject.FindGameObjectsWithTag("Obstacle");
+        foreach (GameObject obstacle in obstacles)
+        {
+            if (obstacle != null)
+                Destroy(obstacle);
+        }
+        
+        Debug.Log("Game stopped. isGameOver: " + isGameOver + ", TimeScale: " + Time.timeScale);
     }
 }
