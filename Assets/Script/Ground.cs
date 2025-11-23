@@ -12,7 +12,9 @@ public class Ground : MonoBehaviour
 
     private void Update()
     {
-        float speed = GameManager.Instance.gameSpeed;
+        if (GameManager.Instance.isGameOver || GameManager.Instance.isPaused) return;
+        
+        float speed = GameManager.Instance.gameSpeed / 10f; // Slower for background
         meshRenderer.material.mainTextureOffset += speed * Time.deltaTime * Vector2.right;
     }
 }
