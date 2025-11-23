@@ -1,20 +1,32 @@
-# Unity generated folders 
-Library/
-Temp/
-Obj/
-Build/
-Builds/
+# Unity Generated Folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild*/
+[Ll]ogs/
+[Mm]emoryCaptures/
 UserSettings/
-Logs/
-MemoryCaptures/
 
-# IDE / project files
+# Cache
+[Bb]ee/
+[Bb]urstCache/
+Assets/AddressableAssetsData/**.bin*
+Assets/StreamingAssets/aa/
+
+# Build Outputs
+*.apk
+*.aab
+*.app
+*.exe
+*.unitypackage
+
+# IDE / Project Files
 .vscode/
 .vs/
+.idea/
 *.csproj
 *.sln
-*.user
-*.userprefs
+*.user*
 *.unityproj
 *.suo
 *.pidb
@@ -24,25 +36,19 @@ MemoryCaptures/
 *.VC.db
 *.booproj
 *.svd
+*.ipr
+*.iws
+*.iml
 
-# Build outputs
-*.apk
-*.aab
-*.app
-*.exe
-*.unitypackage
-
-# Addressables generated file
-Assets/AddressableAssetsData/*/*.bin*
-Assets/StreamingAssets/aa/
-
-# JetBrains Rider auto plugin
+# JetBrains Rider Plugins
 Assets/Plugins/Editor/JetBrains*
 
-# OS junk files 
+# Crash Reports
+sysinfo.txt
+
+# Local Test Results
+test-results/
+
+# OS Junk Files
 .DS_Store
 Thumbs.db
-desktop.ini
-
-# Gradle cache 
-.gradle/
