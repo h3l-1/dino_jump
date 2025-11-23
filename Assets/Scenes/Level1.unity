@@ -444,6 +444,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a75c21d7cb34f344b2d5140aabf8ebe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Parallax
+  textureWidthInWorldUnits: 20
 --- !u!1 &625455124
 GameObject:
   m_ObjectHideFlags: 0
@@ -1287,7 +1288,7 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 0.876
+    width: 1
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
