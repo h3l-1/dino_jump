@@ -9,7 +9,7 @@ public class Obstacle : MonoBehaviour
     private float destroyXPos = -20f;  // Destroy further off-screen so it doesn't pop out visibly
     
     [Header("Meteor Settings")]
-    public bool isMeteor = false;      // CRITICAL: This lets meteors fly diagonally
+    public bool isMeteor = false;      //This lets meteors fly diagonally
     public float meteorDropSpeed = 5f; 
 
     private bool hasCollided = false;  // Prevents triggering Game Over twice
