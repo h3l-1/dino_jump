@@ -29,6 +29,8 @@ public class Player : MonoBehaviour
     private bool isCrouching = false;
     private int jumpCount = 0; // Track number of jumps
     
+    private float targetXPosition; 
+
     private void Awake()
     {
         character = GetComponent<CharacterController>();
@@ -65,11 +67,37 @@ public class Player : MonoBehaviour
             animator.SetBool("isJumping", !isGrounded);
         }
         
+        // crouch logic
+        bool crouchInput = Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow);
+        
+        if (crouchInput && isGrounded)
+        {
+            if (!isCrouching) {
+                character.height = crouchHeight;
+                isCrouching = true;
+            }
+            
+            // Set crouch animation
+            if (animator != null) {
+                animator.SetBool("isCrouching", true);
+            }
+        }
+        else if (isCrouching)
+        {
+            character.height = normalHeight;
+            isCrouching = false;
+            
+            // Exit crouch animation
+            if (animator != null) {
+                animator.SetBool("isCrouching", false);
+            }
+        }
+        
         if (isGrounded)
         {
             direction = Vector3.down;
             
-            // Jump (Space, W, or Up Arrow)
+            // Jump (space, W, Up Arrow)
             if (Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
             {
                 if (!isCrouching) {
@@ -77,39 +105,10 @@ public class Player : MonoBehaviour
                     jumpCount = 1; // First jump used
                 }
             }
-            
-            // Crouch (S or Down Arrow)
-            if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
-            {
-                if (!isCrouching) {
-                    character.height = crouchHeight;
-                    isCrouching = true;
-                }
-                
-                // Set crouch animation state
-                if (animator != null) {
-                    animator.SetBool("isCrouching", true);
-                }
-            }
-            else if (isCrouching)
-            {
-                character.height = normalHeight;
-                isCrouching = false;
-                
-                // Exit crouch animation
-                if (animator != null) {
-                    animator.SetBool("isCrouching", false);
-                }
-            }
         }
         else
         {
-            // In air - make sure crouch animation is off
-            if (animator != null) {
-                animator.SetBool("isCrouching", false);
-            }
-            
-            // DOUBLE JUMP - can jump once more while in air
+            // double jump
             if (allowDoubleJump && jumpCount < 2)
             {
                 if (Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
@@ -119,47 +118,55 @@ public class Player : MonoBehaviour
                 }
             }
             
-            // FAST FALL - press S or Down Arrow to fall faster
+            // press S or Down Arrow to fall faster
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
             {
                 direction.y -= fastFallSpeed * Time.deltaTime;
             }
         }
         
-        // Handle Dash (D or Right Arrow - HOLD)
-        Vector3 targetX = originalPosition;
-        
+        // dash logic
         bool dashInput = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow);
+        float currentX = transform.position.x;
         
         if (dashInput)
         {
-            targetX = originalPosition + Vector3.right * dashDistance;
+            // Set the target to positive infinity for continuous movement to the right
+            targetXPosition = float.PositiveInfinity;
         }
+        else
+        {
+            // If !hold, then go back to initial position
+            targetXPosition = originalPosition.x;
+        }
+
+        // move towards x
+        float nextX = Mathf.MoveTowards(currentX, targetXPosition, dashSpeed * Time.deltaTime);
+
+        // calculate horizontal displacement
+        Vector3 horizontalMove = new Vector3(nextX - currentX, 0, 0);
+
+        // calculate vertical displacement
+        Vector3 verticalMove = direction * Time.deltaTime;
+
+        // apply movement to the Character Controller
+        character.Move(horizontalMove + verticalMove);
         
-        // Set dash animation state
+        // Update Dash Animation
         if (animator != null) {
-            animator.SetBool("isDashing", dashInput);
+            animator.SetBool("isDashing", dashInput); 
         }
-        
-        // Smooth horizontal movement
-        Vector3 pos = transform.position;
-        pos.x = Mathf.MoveTowards(pos.x, targetX.x, dashSpeed * Time.deltaTime);
-        transform.position = pos;
-        
-        // Apply vertical movement
-        character.Move(direction * Time.deltaTime);
     }
     
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Obstacle"))
-        {
+        if (other.CompareTag("Obstacle")) {
             // Trigger death animation
             if (animator != null) {
                 animator.SetTrigger("Death");
             }
-            
             GameManager.Instance.GameOver();
         }
     }
+
 }

@@ -42,17 +42,13 @@ public class Spawner : MonoBehaviour
             {
                 GameObject obstacle = Instantiate(obj.prefab);
                 
-                // Set spawn position with correct height
+                // spawn at certain height depending on type
                 Vector3 spawnPos = transform.position;
                 
-                // Determine Y position based on prefab name
+                // determine Y position based on prefab name
                 string prefabName = obj.prefab.name.ToLower();
                 
-                if (prefabName.Contains("cactus") || prefabName.Contains("ground"))
-                {
-                    spawnPos.y = GroundY;
-                }
-                else if (prefabName.Contains("bird") || prefabName.Contains("sky"))
+                if (prefabName.Contains("bird"))
                 {
                     spawnPos.y = SkyY;
                 }
@@ -62,7 +58,7 @@ public class Spawner : MonoBehaviour
                 }
                 else
                 {
-                    spawnPos.y = GroundY; // Default
+                    spawnPos.y = GroundY; // default
                 }
                 
                 obstacle.transform.position = spawnPos;
