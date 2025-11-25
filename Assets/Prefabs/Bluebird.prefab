@@ -13,9 +13,10 @@ GameObject:
   - component: {fileID: 2187122122017960661}
   - component: {fileID: 1337061058896988273}
   - component: {fileID: 9015762752615333950}
+  - component: {fileID: 5803217776836677464}
   m_Layer: 0
   m_Name: Bluebird
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -29,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 3887802272622386814}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 19.09728, y: 1.88482, z: 0}
+  m_LocalPosition: {x: 17.291, y: 3.10743, z: 0}
   m_LocalScale: {x: 2.5, y: 2.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -126,9 +127,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a0d901fef4bc264eb78509c1eaaf6e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Obstacle
-  speedMultiplier: 1
-  isMeteor: 0
-  meteorDropSpeed: 5
 --- !u!54 &9015762752615333950
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -156,3 +154,26 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &5803217776836677464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3887802272622386814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffae718fd7d4e6c49b8095b361a57a1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimatedSprite
+  sprites:
+  - {fileID: 6570920502705930198, guid: c46cb9a5e3c4ae9408eb82a4c2b2181f, type: 3}
+  - {fileID: 3944408015643112240, guid: c46cb9a5e3c4ae9408eb82a4c2b2181f, type: 3}
+  - {fileID: 3853816143673293235, guid: c46cb9a5e3c4ae9408eb82a4c2b2181f, type: 3}
+  - {fileID: -3032164649882222076, guid: c46cb9a5e3c4ae9408eb82a4c2b2181f, type: 3}
+  - {fileID: 3545866933577851776, guid: c46cb9a5e3c4ae9408eb82a4c2b2181f, type: 3}
+  - {fileID: 3029354677832749505, guid: c46cb9a5e3c4ae9408eb82a4c2b2181f, type: 3}
+  - {fileID: 2030330461010847512, guid: c46cb9a5e3c4ae9408eb82a4c2b2181f, type: 3}
+  - {fileID: 8186078023339056789, guid: c46cb9a5e3c4ae9408eb82a4c2b2181f, type: 3}
+  - {fileID: 5717007125227293428, guid: c46cb9a5e3c4ae9408eb82a4c2b2181f, type: 3}
+  - {fileID: 3366276820443181691, guid: c46cb9a5e3c4ae9408eb82a4c2b2181f, type: 3}

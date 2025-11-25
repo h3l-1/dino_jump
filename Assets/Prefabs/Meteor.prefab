@@ -11,13 +11,14 @@ GameObject:
   - component: {fileID: 6671119916152316439}
   - component: {fileID: 3602225347885969227}
   - component: {fileID: 3272917241697315076}
+  - component: {fileID: 1223755284032463454}
   - component: {fileID: 6834615773812842162}
   - component: {fileID: -555488770862108298}
   - component: {fileID: 1363930118040805238}
   - component: {fileID: 5483194444555747418}
   m_Layer: 0
   m_Name: Meteor
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -31,7 +32,7 @@ Transform:
   m_GameObject: {fileID: 4882280156026878608}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.98179334, w: 0.18995228}
-  m_LocalPosition: {x: 19.09728, y: 1.88482, z: 0}
+  m_LocalPosition: {x: 17.291, y: 3.10743, z: 0}
   m_LocalScale: {x: 2.7, y: 2.7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -116,6 +117,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.34, y: 0.19, z: 0.2}
   m_Center: {x: 0, y: -0.00000010430813, z: 0}
+--- !u!114 &1223755284032463454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4882280156026878608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47ab93e82f4f8054d878023cd9aec826, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MeteorMovement
+  moveSpeed: 12
 --- !u!114 &6834615773812842162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,9 +181,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a0d901fef4bc264eb78509c1eaaf6e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Obstacle
-  speedMultiplier: 1
-  isMeteor: 0
-  meteorDropSpeed: 5
 --- !u!54 &5483194444555747418
 Rigidbody:
   m_ObjectHideFlags: 0

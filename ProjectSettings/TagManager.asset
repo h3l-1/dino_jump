@@ -48,11 +48,11 @@ TagManager:
   - name: 2Clouds
     uniqueID: 4110779201
     locked: 0
-  - name: 3Trees
-    uniqueID: 3412472709
-    locked: 0
   - name: Player
     uniqueID: 2742405867
+    locked: 0
+  - name: 3Trees
+    uniqueID: 3412472709
     locked: 0
   - name: 4Foreground
     uniqueID: 1208864087

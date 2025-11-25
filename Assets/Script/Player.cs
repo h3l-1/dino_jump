@@ -1,207 +1,172 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
-using System.Collections;
 
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
 {
     private CharacterController character;
     private Vector3 direction;
-    private PlayerControls controls; // Assumed to be defined elsewhere/in project
-
-    [Header("Movement Settings")]
-    public float baseJumpForce = 25f; // Set to 25f for a higher jump
-    public float dashSpeed = 22f;
+    
+    [Header("Jump Settings")]
+    public float jumpForce = 18f;
+    public float gravity = 20f;
+    public bool allowDoubleJump = true;
+    
+    [Header("Fast Fall")]
+    public float fastFallSpeed = 30f;
+    
+    [Header("Crouch Settings")]
     public float crouchHeight = 0.5f;
-    public float crouchDuration = 0.5f; // How long the player stays crouched after a tap
     private float normalHeight;
-    private Vector3 normalCenter;
-    private Vector3 crouchCenter;
     
     [Header("Dash Settings")]
-    public float dashDistance = 2f;
-    public float dashDuration = 0.18f;
-    public float returnDuration = 0.12f;
+    public float dashDistance = 3f;
+    public float dashSpeed = 15f;
     
-    // State Variables
-    private bool jumpPressed;
-    private bool isCrouching; 
-    private bool isAttemptingToStand; 
-    private bool isDashing;
-    private bool isGrounded;
+    [Header("Animation")]
+    public Animator animator;
+    
     private Vector3 originalPosition;
+    private bool isCrouching = false;
+    private int jumpCount = 0; // Track number of jumps
     
-    private Coroutine dashCoroutine;
-    private Coroutine crouchCoroutine;
+    private float targetXPosition; 
 
     private void Awake()
     {
         character = GetComponent<CharacterController>();
         normalHeight = character.height;
-        // Calculate centers based on heights
-        normalCenter = character.center; 
-        crouchCenter = new Vector3(normalCenter.x, crouchHeight / 2f, normalCenter.z);
-
-        controls = new PlayerControls(); 
         originalPosition = transform.position;
+        
+        // Auto-find animator if not assigned
+        if (animator == null) {
+            animator = GetComponentInChildren<Animator>();
+        }
     }
-
+    
     private void OnEnable()
     {
-        controls.Enable();
-        controls.Player.Jump.performed += OnJumpInput;
-        controls.Player.Crouch.performed += OnCrouchInput; 
-        controls.Player.Dash.performed += OnDashInput;
+        direction = Vector3.zero;
+        originalPosition = transform.position;
     }
-
-    private void OnDisable()
-    {
-        controls.Disable();
-        controls.Player.Jump.performed -= OnJumpInput;
-        controls.Player.Crouch.performed -= OnCrouchInput;
-        controls.Player.Dash.performed -= OnDashInput;
-    }
-
+    
     private void Update()
     {
-        if (GameManager.Instance != null && (GameManager.Instance.isGameOver || GameManager.Instance.isPaused))
-            return;
-
-        isGrounded = character.isGrounded;
-
-        // 1. Handle Stand-Up Safety Check (Ensures crouch returns to normal)
-        HandleStandUpCheck();
+        // Apply gravity
+        direction += gravity * Time.deltaTime * Vector3.down;
         
-        // 2. Handle Vertical Movement (Jump and Gravity)
-        if (isGrounded && !isDashing)
+        // Check if grounded
+        bool isGrounded = character.isGrounded;
+        
+        // Reset jump count when grounded
+        if (isGrounded) {
+            jumpCount = 0;
+        }
+        
+        // Update jump animation based on grounded state
+        if (animator != null) {
+            animator.SetBool("isJumping", !isGrounded);
+        }
+        
+        // crouch logic
+        bool crouchInput = Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow);
+        
+        if (crouchInput && isGrounded)
         {
-            if (direction.y < 0)
-                direction.y = -1f;
-
-            if (jumpPressed && !isCrouching && !isAttemptingToStand)
-            {
-                direction.y = baseJumpForce;
-                jumpPressed = false;
+            if (!isCrouching) {
+                character.height = crouchHeight;
+                isCrouching = true;
+            }
+            
+            // Set crouch animation
+            if (animator != null) {
+                animator.SetBool("isCrouching", true);
             }
         }
-        else if (!isDashing)
+        else if (isCrouching)
         {
-            if (GameManager.Instance != null)
-            {
-                 direction.y -= GameManager.Instance.CurrentGravity * Time.deltaTime;
+            character.height = normalHeight;
+            isCrouching = false;
+            
+            // Exit crouch animation
+            if (animator != null) {
+                animator.SetBool("isCrouching", false);
             }
         }
-
-        // 3. Horizontal Movement
-        if (!isDashing)
+        
+        if (isGrounded)
         {
-            direction.x = 0;
+            direction = Vector3.down;
+            
+            // Jump (space, W, Up Arrow)
+            if (Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                if (!isCrouching) {
+                    direction = Vector3.up * jumpForce;
+                    jumpCount = 1; // First jump used
+                }
+            }
+        }
+        else
+        {
+            // double jump
+            if (allowDoubleJump && jumpCount < 2)
+            {
+                if (Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+                {
+                    direction = Vector3.up * jumpForce;
+                    jumpCount = 2; // Second jump used
+                }
+            }
+            
+            // press S or Down Arrow to fall faster
+            if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+            {
+                direction.y -= fastFallSpeed * Time.deltaTime;
+            }
+        }
+        
+        // dash logic
+        bool dashInput = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow);
+        float currentX = transform.position.x;
+        
+        if (dashInput)
+        {
+            // Set the target to positive infinity for continuous movement to the right
+            targetXPosition = float.PositiveInfinity;
+        }
+        else
+        {
+            // If !hold, then go back to initial position
+            targetXPosition = originalPosition.x;
         }
 
-        // 4. Apply Height and Center based on state
-        bool isSmall = isCrouching || isAttemptingToStand;
+        // move towards x
+        float nextX = Mathf.MoveTowards(currentX, targetXPosition, dashSpeed * Time.deltaTime);
+
+        // calculate horizontal displacement
+        Vector3 horizontalMove = new Vector3(nextX - currentX, 0, 0);
+
+        // calculate vertical displacement
+        Vector3 verticalMove = direction * Time.deltaTime;
+
+        // apply movement to the Character Controller
+        character.Move(horizontalMove + verticalMove);
         
-        character.height = isSmall ? crouchHeight : normalHeight;
-        character.center = isSmall ? crouchCenter : normalCenter;
-        
-        // 5. Update Original Position
-        if (!isDashing && isGrounded)
-        {
-            originalPosition = transform.position;
+        // Update Dash Animation
+        if (animator != null) {
+            animator.SetBool("isDashing", dashInput); 
         }
-        
-        // 6. Execute Move
-        character.Move(direction * Time.deltaTime);
     }
     
-    private void HandleStandUpCheck()
+    private void OnTriggerEnter(Collider other)
     {
-        if (isAttemptingToStand)
-        {
-            float raycastDistance = normalHeight - crouchHeight;
-            Vector3 rayOrigin = transform.position + Vector3.up * crouchHeight;
-            
-            // Check against all layers (using ~0) and ignore triggers
-            if (!Physics.Raycast(rayOrigin, Vector3.up, raycastDistance, ~0, QueryTriggerInteraction.Ignore))
-            {
-                isAttemptingToStand = false;
+        if (other.CompareTag("Obstacle")) {
+            // Trigger death animation
+            if (animator != null) {
+                animator.SetTrigger("Death");
             }
+            GameManager.Instance.GameOver();
         }
     }
 
-    private void OnJumpInput(InputAction.CallbackContext context)
-    {
-        if (context.performed && isGrounded && !isDashing && !isCrouching && !isAttemptingToStand && GameManager.Instance != null && !GameManager.Instance.isGameOver) 
-            jumpPressed = true;
-    }
-
-    private void OnCrouchInput(InputAction.CallbackContext context) 
-    { 
-        if (!isDashing && isGrounded && GameManager.Instance != null && !GameManager.Instance.isGameOver) 
-        {
-            if (crouchCoroutine != null)
-                StopCoroutine(crouchCoroutine);
-            
-            crouchCoroutine = StartCoroutine(CrouchRoutine());
-        }
-    }
-    
-    private IEnumerator CrouchRoutine()
-    {
-        isCrouching = true;
-        isAttemptingToStand = false; 
-
-        yield return new WaitForSeconds(crouchDuration);
-        
-        isCrouching = false;
-        isAttemptingToStand = true; 
-
-        crouchCoroutine = null;
-    }
-
-    private void OnDashInput(InputAction.CallbackContext context)
-    {
-        if (context.performed && !isDashing && isGrounded && GameManager.Instance != null && !GameManager.Instance.isGameOver)
-        {
-            if (dashCoroutine != null)
-                StopCoroutine(dashCoroutine);
-            dashCoroutine = StartCoroutine(DashRoutine());
-        }
-    }
-
-    private System.Collections.IEnumerator DashRoutine()
-    {
-        isDashing = true;
-        Vector3 dashStartPos = transform.position;
-        Vector3 dashTargetPos = dashStartPos + Vector3.right * dashDistance;
-        float elapsedTime = 0f;
-
-        while (elapsedTime < dashDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float t = elapsedTime / dashDuration;
-            t = 1f - Mathf.Pow(1f - t, 2f);
-            transform.position = Vector3.Lerp(dashStartPos, dashTargetPos, t); 
-            yield return null;
-        }
-
-        transform.position = dashTargetPos;
-        yield return new WaitForSeconds(0.06f);
-
-        elapsedTime = 0f;
-        Vector3 returnStartPos = transform.position;
-        
-        while (elapsedTime < returnDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float t = elapsedTime / returnDuration;
-            t = t * t;
-            transform.position = Vector3.Lerp(returnStartPos, originalPosition, t);
-            yield return null;
-        }
-
-        transform.position = originalPosition;
-        isDashing = false;
-        dashCoroutine = null;
-    }
 }
