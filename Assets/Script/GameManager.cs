@@ -1,128 +1,89 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
+[DefaultExecutionOrder(-1)]
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-
-    [Header("Game Speed Settings")]
-    public float gameSpeed = 8f; 	 	// Controls movement speed
-    public float initialSpeed = 8f; 	// Starting speed
-    public float maxSpeed = 16f; 	 	// Maximum speed
     
-    [Header("Progression Settings")]
-    public float progressionDuration = 240f; 	// Time to reach max speed
-    public float initialSlowdownDuration = 3f; 	// Initial speed duration
+    [Header("Game Speed")]
+    public float initialGameSpeed = 8f;
+    public float gameSpeedIncrease = 0.5f;
+    public float maxGameSpeed = 16f;
+    public float gameSpeed { get; private set; }
     
-    [Header("Gravity Settings")]
-    public float initialGravity = 22f; 	// Starting gravity 
-    public float maxGravity = 38f; 	 	// Maximum gravity 
-    
-    [Header("Parallax Settings")]
-    public float initialParallaxMultiplier = 1f; 	// Initial parallax speed
-    public float maxParallaxMultiplier = 1.2f; 	// Maximum parallax speed
+    [Header("Gravity")]
+    public float playerGravity = 20f;
     
     [Header("Game State")]
     public bool isGameOver = false;
     public bool isPaused = false;
     
-    private float gameStartTime = 0f;
-    public float GameDuration => Time.time - gameStartTime;
+    private Player player;
+    private Spawner spawner;
     
-    public float CurrentGravity { get; private set; }
-    public float CurrentParallaxMultiplier { get; private set; }
-    public float ProgressionProgress { get; private set; }
-
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
+        if (Instance != null) {
+            DestroyImmediate(gameObject);
+        } else {
+            Instance = this;
         }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
-
+    
+    private void OnDestroy()
+    {
+        if (Instance == this) {
+            Instance = null;
+        }
+    }
+    
     private void Start()
     {
-        gameStartTime = Time.time;
-        ResetGameValues();
+        player = FindAnyObjectByType<Player>();
+        spawner = FindAnyObjectByType<Spawner>();
+        NewGame();
     }
-
-    private void Update()
+    
+    public void NewGame()
     {
-        // This stops the speed calculation if the game is over/paused
-        if (isGameOver || isPaused) return;
-
-        float gameDuration = GameDuration;
+        // Clear all obstacles
+        Obstacle[] obstacles = FindObjectsByType<Obstacle>(FindObjectsSortMode.None);
+        foreach (var obstacle in obstacles) {
+            Destroy(obstacle.gameObject);
+        }
         
-        if (gameDuration < initialSlowdownDuration)
-        {
-            ProgressionProgress = 0f;
-            gameSpeed = initialSpeed * 0.8f;
-            CurrentGravity = initialGravity * 0.9f;
-            CurrentParallaxMultiplier = initialParallaxMultiplier * 0.9f;
+        // Clear all meteors
+        MeteorMovement[] meteors = FindObjectsByType<MeteorMovement>(FindObjectsSortMode.None);
+        foreach (var meteor in meteors) {
+            Destroy(meteor.gameObject);
         }
-        else
-        {
-            float progressionTime = gameDuration - initialSlowdownDuration;
-            ProgressionProgress = Mathf.Clamp01(progressionTime / progressionDuration);
-            
-            float easedProgress = EaseInOut(ProgressionProgress);
-            
-            gameSpeed = Mathf.Lerp(initialSpeed, maxSpeed, easedProgress);
-            CurrentGravity = Mathf.Lerp(initialGravity, maxGravity, easedProgress);
-            CurrentParallaxMultiplier = Mathf.Lerp(initialParallaxMultiplier, maxParallaxMultiplier, easedProgress);
-        }
-    }
-
-    private float EaseInOut(float t)
-    {
-        return t < 0.5f ? 2f * t * t : 1f - Mathf.Pow(-2f * t + 2f, 2f) / 2f;
-    }
-
-    private void ResetGameValues()
-    {
-        gameSpeed = initialSpeed * 0.8f;
-        CurrentGravity = initialGravity * 0.9f;
-        CurrentParallaxMultiplier = initialParallaxMultiplier * 0.9f;
-        ProgressionProgress = 0f;
-    }
-
-    public void StartGame()
-    {
+        
+        gameSpeed = initialGameSpeed;
         isGameOver = false;
-        isPaused = false;
-        gameStartTime = Time.time;
-        ResetGameValues();
-        Time.timeScale = 1f;
+        enabled = true;
+        
+        if (player != null) player.gameObject.SetActive(true);
+        if (spawner != null) spawner.gameObject.SetActive(true);
     }
-
-    public void PauseGame() => isPaused = true;
-    public void ResumeGame() => isPaused = false;
-
+    
     public void GameOver()
     {
-        if (isGameOver) 
-        {
-            Debug.Log("GameOver was already called, ignoring.");
-            return;
-        }
+        if (isGameOver) return; // Prevent multiple calls
         
-        Debug.Log("=== GAME MANAGER GAME OVER ===");
+        gameSpeed = 0f;
         isGameOver = true;
-        // This should stop all Update/FixedUpdate movement using Time.deltaTime
-        Time.timeScale = 0f; 
+        enabled = false;
         
-        // Force stop all movement (This part is correctly destroying obstacles)
-        GameObject[] obstacles = GameObject.FindGameObjectsWithTag("Obstacle");
-        foreach (GameObject obstacle in obstacles)
-        {
-            if (obstacle != null)
-                Destroy(obstacle);
-        }
+        if (player != null) player.gameObject.SetActive(false);
+        if (spawner != null) spawner.gameObject.SetActive(false);
         
-        Debug.Log("Game stopped. isGameOver: " + isGameOver + ", TimeScale: " + Time.timeScale);
+        Debug.Log("GAME OVER");
+    }
+    
+    private void Update()
+    {
+        // Gradually increase speed
+        gameSpeed += gameSpeedIncrease * Time.deltaTime;
+        gameSpeed = Mathf.Min(gameSpeed, maxGameSpeed);
     }
 }

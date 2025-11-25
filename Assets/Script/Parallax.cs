@@ -12,7 +12,7 @@ public class Parallax : MonoBehaviour
     // If your Quad scale is X = 20, put 20 here.
     public float textureWidthInWorldUnits = 20f; 
     
-    private float currentOffset = 0f;
+    private float currentOffset = 1f;
 
     void Awake()
     {
