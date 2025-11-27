@@ -47,10 +47,21 @@ public class Player : MonoBehaviour
     {
         direction = Vector3.zero;
         originalPosition = transform.position;
+        isCrouching = false;
+        jumpCount = 0;
     }
     
     private void Update()
     {
+        // Stop all player input if game is over, but keep physics active
+        if (GameManager.Instance != null && GameManager.Instance.isGameOver)
+        {
+            // Continue applying gravity so player falls naturally after death
+            direction += gravity * Time.deltaTime * Vector3.down;
+            character.Move(direction * Time.deltaTime);
+            return; // Exit early - no more input processing
+        }
+        
         // Apply gravity
         direction += gravity * Time.deltaTime * Vector3.down;
         
@@ -160,13 +171,19 @@ public class Player : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
+        // Prevent multiple game over calls
+        if (GameManager.Instance != null && GameManager.Instance.isGameOver) return;
+        
         if (other.CompareTag("Obstacle")) {
             // Trigger death animation
             if (animator != null) {
                 animator.SetTrigger("Death");
             }
-            GameManager.Instance.GameOver();
+            
+            // Call game over
+            if (GameManager.Instance != null) {
+                GameManager.Instance.GameOver();
+            }
         }
     }
-
 }
