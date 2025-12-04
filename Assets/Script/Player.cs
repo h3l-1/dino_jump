@@ -37,7 +37,7 @@ public class Player : MonoBehaviour
         normalHeight = character.height;
         originalPosition = transform.position;
         
-        // Auto-find animator if not assigned
+        // auto-find animator if not assigned
         if (animator == null) {
             animator = GetComponentInChildren<Animator>();
         }
@@ -47,10 +47,21 @@ public class Player : MonoBehaviour
     {
         direction = Vector3.zero;
         originalPosition = transform.position;
+        isCrouching = false;
+        jumpCount = 0;
     }
     
     private void Update()
     {
+        // only start when isGameOver is not true
+        if (GameManager.Instance != null && GameManager.Instance.isGameOver)
+        {
+            // continue falling even after death 
+            direction += gravity * Time.deltaTime * Vector3.down;
+            character.Move(direction * Time.deltaTime);
+            return; // exit early 
+        }
+        
         // Apply gravity
         direction += gravity * Time.deltaTime * Vector3.down;
         
@@ -62,7 +73,7 @@ public class Player : MonoBehaviour
             jumpCount = 0;
         }
         
-        // Update jump animation based on grounded state
+        // jump animation
         if (animator != null) {
             animator.SetBool("isJumping", !isGrounded);
         }
@@ -97,28 +108,28 @@ public class Player : MonoBehaviour
         {
             direction = Vector3.down;
             
-            // Jump (space, W, Up Arrow)
+            // jump 
             if (Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
             {
                 if (!isCrouching) {
                     direction = Vector3.up * jumpForce;
-                    jumpCount = 1; // First jump used
+                    jumpCount = 1; // first jump 
                 }
             }
         }
         else
         {
             // double jump
-            if (allowDoubleJump && jumpCount < 2)
+            if (allowDoubleJump && jumpCount < 2) // cap @2 jumps 
             {
                 if (Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
                 {
                     direction = Vector3.up * jumpForce;
-                    jumpCount = 2; // Second jump used
+                    jumpCount = 2; // second jump used
                 }
             }
             
-            // press S or Down Arrow to fall faster
+            // fall faster
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
             {
                 direction.y -= fastFallSpeed * Time.deltaTime;
@@ -131,7 +142,7 @@ public class Player : MonoBehaviour
         
         if (dashInput)
         {
-            // Set the target to positive infinity for continuous movement to the right
+            // dash forward infinitely
             targetXPosition = float.PositiveInfinity;
         }
         else
@@ -143,13 +154,14 @@ public class Player : MonoBehaviour
         // move towards x
         float nextX = Mathf.MoveTowards(currentX, targetXPosition, dashSpeed * Time.deltaTime);
 
-        // calculate horizontal displacement
+        /*--------------------------------------------------------
+        calculate horizontal displacement + vertical displacement
+        apply movement to the Character Controller
+        ---------------------------------------------------------*/
         Vector3 horizontalMove = new Vector3(nextX - currentX, 0, 0);
 
-        // calculate vertical displacement
         Vector3 verticalMove = direction * Time.deltaTime;
 
-        // apply movement to the Character Controller
         character.Move(horizontalMove + verticalMove);
         
         // Update Dash Animation
@@ -158,15 +170,22 @@ public class Player : MonoBehaviour
         }
     }
     
-    private void OnTriggerEnter(Collider other)
+    private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (other.CompareTag("Obstacle")) {
+        // Prevent multiple game over calls
+        if (GameManager.Instance != null && GameManager.Instance.isGameOver) return;
+        
+        if (hit.gameObject.CompareTag("Obstacle")) 
+        {
             // Trigger death animation
             if (animator != null) {
                 animator.SetTrigger("Death");
             }
-            GameManager.Instance.GameOver();
+            
+            // Call game over
+            if (GameManager.Instance != null) {
+                GameManager.Instance.GameOver();
+            }
         }
     }
-
 }
