@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 3
   tags:
   - Obstacle
+  - Background
+  - Ground
+  - Spawner
+  - Event System
   layers:
   - Default
   - TransparentFX

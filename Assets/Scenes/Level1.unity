@@ -358,6 +358,7 @@ GameObject:
 =======
   serializedVersion: 6
   m_Component:
+<<<<<<< Updated upstream
   - component: {fileID: 115396742}
   - component: {fileID: 115396745}
   - component: {fileID: 115396744}
@@ -365,6 +366,14 @@ GameObject:
   m_Layer: 5
   m_Name: Retry
   m_TagString: Untagged
+=======
+  - component: {fileID: 147626317}
+  - component: {fileID: 147626316}
+  - component: {fileID: 147626315}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Event System
+>>>>>>> Stashed changes
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -496,7 +505,7 @@ GameObject:
   - component: {fileID: 333615475}
   m_Layer: 0
   m_Name: Spawner
-  m_TagString: Untagged
+  m_TagString: Spawner
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -565,7 +574,7 @@ GameObject:
   - component: {fileID: 354191861}
   m_Layer: 0
   m_Name: GameManager
-  m_TagString: Untagged
+  m_TagString: GameController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -598,11 +607,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
   scoreText: {fileID: 2132396292}
   hiscoreText: {fileID: 466244655}
   gameOverText: {fileID: 1475454526}
   retryButton: {fileID: 115396743}
+=======
+  scoreText: {fileID: 0}
+  hiscoreText: {fileID: 0}
+  gameOverText: {fileID: 0}
+  retryButton: {fileID: 0}
+>>>>>>> Stashed changes
   score: 0
 <<<<<<< Updated upstream
 >>>>>>> Stashed changes
@@ -734,7 +750,7 @@ GameObject:
   - component: {fileID: 428435571}
   m_Layer: 0
   m_Name: Foreground
-  m_TagString: Untagged
+  m_TagString: Background
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -823,6 +839,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Parallax
   textureWidthInWorldUnits: 20
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 =======
 --- !u!1 &466244654
@@ -1201,6 +1218,8 @@ CanvasRenderer:
   m_GameObject: {fileID: 549254792}
   m_CullTransparentMesh: 1
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 --- !u!1 &625455124
 GameObject:
   m_ObjectHideFlags: 0
@@ -1215,7 +1234,7 @@ GameObject:
   - component: {fileID: 625455128}
   m_Layer: 0
   m_Name: Sky
-  m_TagString: Untagged
+  m_TagString: Background
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1318,7 +1337,7 @@ GameObject:
   - component: {fileID: 1233101253}
   m_Layer: 0
   m_Name: Clouds
-  m_TagString: Untagged
+  m_TagString: Background
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1407,6 +1426,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Parallax
   textureWidthInWorldUnits: 20
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 =======
 --- !u!1 &1314672593
@@ -1719,6 +1739,8 @@ CanvasRenderer:
   m_GameObject: {fileID: 1618822938}
   m_CullTransparentMesh: 1
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 --- !u!1 &1938635407
 GameObject:
   m_ObjectHideFlags: 0
@@ -1911,7 +1933,7 @@ GameObject:
   - component: {fileID: 1964342227}
   m_Layer: 0
   m_Name: Ground
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2033,7 +2055,7 @@ GameObject:
   - component: {fileID: 2120136364}
   m_Layer: 0
   m_Name: Background
-  m_TagString: Untagged
+  m_TagString: Background
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2267,7 +2289,7 @@ GameObject:
   - component: {fileID: 2133251950}
   m_Layer: 0
   m_Name: Camera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
